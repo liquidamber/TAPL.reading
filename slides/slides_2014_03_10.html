@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ja-jp">
+
+  <head>
+	<meta charset="utf-8">
+
+	<title>TAPL (型システム入門)読書 - #01</title>
+
+	<meta name="description" content="型システム入門の読書会スライド #01">
+	<meta name="author" content="liquid_amber">
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<link rel="stylesheet" href="css/reveal.min.css">
+	<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+	<!-- For syntax highlighting -->
+	<link rel="stylesheet" href="lib/css/zenburn.css">
+
+	<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+	<script>
+	  document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+	</script>
+
+	<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+  </head>
+
+  <body>
+    <div class="reveal">
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section data-markdown
+                 data-separator="\n---\n"
+                 data-vertical="\n--\n">
+          <script type="text/template">
+## TAPL 読書会 #01
+liquid_amber
+---
+## はじめに
+ざっくりとしたこと
+--
+### 型 is 何
+第1章「はじめに」によると
+> > 型システムとは、(中略)プログラムがある種の振る舞いを起こさないことを保証する、計算量的に扱いやすい構文的手法.
+
+要は「実行時エラーを(一定の範囲で)起こさないようにする」のが型の役割
+--
+### 型 is good
+* エラー検出
+  * コンパイルするだけでエラーがわかる
+* 抽象化
+* ドキュメント化
+  * 型が付くと何するやつかわかりやすい
+* 言語の安全性
+  * いきなりメモリ破壊して死なない
+* 効率性
+  * 型が決まると最適化しやすい
+--
+### TAPLの構成
+1. **第I部 言語と数学の練習**
+
+2. 第II部 ただ型が付く
+
+3. 第III部 部分型付け=オブジェクト指向
+
+4. 第IV部 再帰型=木・リスト…
+
+5. 第V部以降=カオス
+
+   Haskell, ML, Scalaz, ...
+---
+## 本日のagenda
+1. 型なし算術式
+
+2. 型なしラムダ計算
+---
+## 型なし算術式
+--
+### 目的
+if true then succ(5) else 0
+
+これを計算する
+--
+### 目的
+当然見ればわかる
+
+if true then succ(5) else 0 = succ(5) = 6
+--
+### 目的
+* <del>この計算ができる</del>
+
+* 計算規則がわかる
+
+* 定理の示し方
+--
+### 構文規則
+* 一番大事なやつ(片方)
+
+  * プログラムの文法
+
+    * true, false, 0
+    * succ(t), pred(t), iszero(t)
+    * if t1 then t2 else t3
+--
+### 構文規則(再帰)
+* 構文規則はbottom-up
+
+  * 一方読む人はtop-downに読む
+  * バラして読めないとだめ
+
+```
+if if true then false else true else 4
+if if true then false else true then 23 else 4
+```
+↑どっちが正解？
+--
+### 構文規則の解読
+* 逆に考える
+
+  * 項は次のどれか
+
+    * **if** t **then** t **else** t
+    * **succ** t, **pred** t, **iszero** t
+    * 0, true, false
+--
+### 意味論
+* プログラムの意味
+  * 5 + 5 = 10 になる定義
+  * 一番大事なやつ(のもう片方)
+* **操作的意味論**
+  * 実際に計算する方法＝意味
+--
+### 評価
+* 式を計算すること
+  * 1ステップずつ実行していく
+    * if文
+    * 数学関数
+--
+### 評価のいろいろ
+* 最後には式を値になるまで計算できる
+  * succ(...(0)), true, false
+  * 値にできない場合**行き詰まり**
+  * 両方合わせて**正規形**
+
+* ある式の評価の仕方はただ1つ [Thm. 3.5.1]
+
+* ある式の正規形も1つだけ [Thm. 3.5.11]
+
+* 評価は必ず終わる [Thm. 3.5.12.]
+---
+## ラムダ計算(型なし)
+
+* さいきょうの抽象化
+
+  * 1つは**チューリングマシン**
+
+  * もう1つが**ラムダ計算**
+--
+### ラムダ計算の項
+
+* これだけ
+
+  * x (変数)
+  * λx.t (ラムダ抽象)
+  * t t (関数適用)
+--
+## ラムダ計算 (in Python)
+```python
+x # 変数
+
+lambda x: <t> # ラムダ抽象
+
+f(g) # 関数適用
+```
+--
+## ラムダ計算 (in JavaScript)
+```javascript
+x // 変数
+
+function(x) { t } // ラムダ抽象
+
+f (g) // 関数適用
+```
+--
+## ラムダ計算 (in Haskell)
+```haskell
+x -- 変数
+
+\x -> t -- ラムダ抽象
+
+f g -- 関数適用
+```
+--
+## 関数適用の評価
+* 関数しか無い
+  * 関数呼び出ししか無い
+
+* (λx.t1) t2 → [x⇢t1] t2
+
+  * 引数を置換する
+--
+## 関数適用の評価(js)
+```javascript
+// これが
+function(x) { return x * 2; } (x + 5);
+// こうなる
+(x + 5) * 2;
+```
+--
+## 簡約方法
+* 完全β簡約
+* 正規順序
+* 名前呼び
+  * 外側から順に関数適用
+* 値呼び
+  * 引数を値にしてから関数適用
+--
+## ラムダ計算とは(再考)
+* 1引数関数とその適用だけ
+  * 数ない
+  * Bool無い
+  * 複数引数ない
+  * でも**チューリング完全**
+--
+## 複数引数
+* 1つ目の引数を取って関数を返す
+  * クロージャ
+  * カリー化
+```javascript
+plus = function(x){
+    return function(y){
+        return x + y;
+    }
+}
+```
+--
+## if文/Bool値
+* if文＝cond次第でexpr1かexpr2が切り替わる
+
+  * test = λl. λm. λn. l m n;
+  * tru = λt. λf. t;
+  * fls = λt. λf. f;
+          </script>
+        </section>
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+      controls: true,
+      progress: true,
+      history: true,
+      center: true,
+
+      theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+      transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+      // Parallax scrolling
+      // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+      // parallaxBackgroundSize: '2100px 900px',
+
+      // Optional libraries used to extend on reveal.js
+      dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+      });
+    </script>
+
+    <style type="text/css">
+      .reveal .slides section p {
+      line-height: 1.7em;
+      }
+      .reveal .slides section li {
+      line-height: 1.5em;
+      }
+      strong {
+      color: red;
+      }
+    </style>
+  </body>
+</html>
