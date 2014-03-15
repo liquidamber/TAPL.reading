@@ -4,9 +4,9 @@
   <head>
 	<meta charset="utf-8">
 
-	<title>TAPL (型システム入門)読書 - #01</title>
+	<title>TAPL (型システム入門)読書 - #01 @2014-03-10</title>
 
-	<meta name="description" content="型システム入門の読書会スライド #01">
+	<meta name="description" content="型システム入門の読書会スライド #01 @2014-03-10">
 	<meta name="author" content="liquid_amber">
 
 	<meta name="apple-mobile-web-app-capable" content="yes" />
@@ -169,7 +169,7 @@ if if true then false else true then 23 else 4
   * λx.t (ラムダ抽象)
   * t t (関数適用)
 --
-## ラムダ計算 (in Python)
+### ラムダ計算 (in Python)
 ```python
 x # 変数
 
@@ -178,7 +178,7 @@ lambda x: <t> # ラムダ抽象
 f(g) # 関数適用
 ```
 --
-## ラムダ計算 (in JavaScript)
+### ラムダ計算 (in JavaScript)
 ```javascript
 x // 変数
 
@@ -187,7 +187,7 @@ function(x) { t } // ラムダ抽象
 f (g) // 関数適用
 ```
 --
-## ラムダ計算 (in Haskell)
+### ラムダ計算 (in Haskell)
 ```haskell
 x -- 変数
 
@@ -196,7 +196,7 @@ x -- 変数
 f g -- 関数適用
 ```
 --
-## 関数適用の評価
+### 関数適用の評価
 * 関数しか無い
   * 関数呼び出ししか無い
 
@@ -204,7 +204,7 @@ f g -- 関数適用
 
   * 引数を置換する
 --
-## 関数適用の評価(js)
+### 関数適用の評価(js)
 ```javascript
 // これが
 function(x) { return x * 2; } (x + 5);
@@ -212,7 +212,7 @@ function(x) { return x * 2; } (x + 5);
 (x + 5) * 2;
 ```
 --
-## 簡約方法
+### 簡約方法
 * 完全β簡約
 * 正規順序
 * 名前呼び
@@ -220,14 +220,14 @@ function(x) { return x * 2; } (x + 5);
 * 値呼び
   * 引数を値にしてから関数適用
 --
-## ラムダ計算とは(再考)
+### ラムダ計算とは(再考)
 * 1引数関数とその適用だけ
   * 数ない
   * Bool無い
   * 複数引数ない
   * でも**チューリング完全**
 --
-## 複数引数
+### 複数引数
 * 1つ目の引数を取って関数を返す
   * クロージャ
   * カリー化
@@ -239,12 +239,46 @@ plus = function(x){
 }
 ```
 --
-## if文/Bool値
+### if文/Bool値
 * if文＝cond次第でexpr1かexpr2が切り替わる
 
   * test = λl. λm. λn. l m n;
   * tru = λt. λf. t;
   * fls = λt. λf. f;
+---
+## 追記
+* `pred (succ nv1)` 評価規則の問題
+--
+### そもそもnv-1じゃダメな理由
+自然数の定義が
+
+* 0
+* succ 0
+* succ (succ 0)
+* succ (...(succ 0))
+
+succを1つ減らす=-1
+--
+### で中身がtではなくnv1の理由
+
+* 評価関係の一意性を損なうから
+  * 本当に？
+--
+### 演習3.5.14. 証明(1/2)
+項$t$についての場合分け
+
+* 値はすべて正規形であり評価されない
+  * $t \to t'$をそもそも満たさない
+  * 評価規則の結論が値の形ではない
+* その他の項を考える
+--
+### 演習3.5.14. 証明(2/2)
+* 真偽値の項(if/then/else)...済
+* $\mathit{succ}\ t$には$\text{E-Succ}$を適用
+  * $\mathit{succ}\ (\dots(\mathit{succ}\ t))$は$t$ではない
+* $\mathit{pred}\ t$は$t$が値かどうかで場合分けされる
+  * $\mathit{pred}$の除去則が値にしか適用できない理由
+* $\mathit{iszero}\ t$は$\text{E-IsZero}$を適用
           </script>
         </section>
       </div>
@@ -292,5 +326,11 @@ plus = function(x){
       color: red;
       }
     </style>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script type="text/javascript"
+            src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
   </body>
 </html>
