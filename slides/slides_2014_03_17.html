@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ja-jp">
+
+  <head>
+	<meta charset="utf-8">
+
+	<title>TAPL (型システム入門)読書 - #02 @2014-03-17</title>
+
+	<meta name="description" content="型システム入門の読書会スライド #02 @2014-03-17">
+	<meta name="author" content="liquid_amber">
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<link rel="stylesheet" href="css/reveal.min.css">
+	<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+	<!-- For syntax highlighting -->
+	<link rel="stylesheet" href="lib/css/zenburn.css">
+
+	<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+	<script>
+	  document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+	</script>
+
+	<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+  </head>
+
+  <body>
+    <div class="reveal">
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section data-markdown
+                 data-separator="\n---\n"
+                 data-vertical="\n--\n">
+          <script type="text/template">
+## TAPL 読書会 #02
+liquid_amber
+---
+## 前回のおさらい
+* 構文規則
+* 評価規則
+  * 評価の一意性
+* ラムダ計算
+  * 変数と関数適用と関数定義しか無い
+---
+## 型なしラムダ計算
+* いろいろなデータ型をラムダ計算で表現
+--
+### ラムダ計算の記法(再)
+* $x$ 変数
+* $\lambda x. t$ ラムダ抽象(関数定義)
+* $x\ t$ 関数適用
+
+具体例
+
+$\lambda x. \lambda y. c\ x\ y \quad(= \lambda x\ y. c\ x\ y)$
+
+$= \lambda x.( \lambda y. ((c\ x)\ y))$
+
+```javascript
+function(x){
+  return function(y){
+    return c(x)(y);
+  }
+}
+```
+---
+## ブール代数
+再掲
+
+* `test` = $\lambda l. \lambda m . \lambda n . l\ m\ n$
+
+  * 条件$l$をthen節$m$とelse節$n$に適用
+  * **注意:**引数はすべて値
+* `tru` = $\lambda t. \lambda f. t$
+  * 前者を返す
+* `fls` = $\lambda t. \lambda f. f$
+  * 後者を返す
+--
+### ブール演算
+`and`を求めたい
+
+```haskell
+and x y = if x then y else False
+```
+
+これを実装すると
+
+$$
+\lambda b. \lambda c. b\ c\ \mathtt{fls}
+$$
+--
+### ブール演算(演習)
+演習5.2.1.
+
+`or`と`not`を求めよ
+--
+### ブール演算(演習答え)
+```haskell
+or b c = if b then True else c
+not b = if b then False else True
+```
+
+`or` $= \lambda b. \lambda c. b\ \mathtt{tru}\ c$
+
+`not` $= \lambda b. b\ \mathtt{fls}\ \mathtt{tru}$
+---
+## タプル
+```haskell
+(,) a b = (a, b)
+fst ((,) a _) = a
+snd ((,) _ b) = b
+```
+
+* `pair` $= \lambda f. \lambda s. \lambda b. b\ f\ s$
+
+  引数$f$, $s$を受け取って$\lambda b. b\ f\ s$
+* `fst` $= \lambda p. p\ \mathtt{tru}$
+
+* `snd` $= \lambda p. p\ \mathtt{fls}$
+---
+## Church数
+* ペアノの公理
+  * `0`は自然数
+  * `n`が自然数なら`succ n`も自然数
+
+```
+0 := 0
+1 := succ 0
+2 := succ (succ 0)
+```
+--
+### 定義
+そのまま定義する
+
+* $c_0 = \lmd{s}{\lmd{z}{z}}$
+* $c_1 = \lmd{s}{\lmd{z}{\app{s}{z}}}$
+* $c_2 = \lmd{s}{\lmd{z}{\app{s}{(\app{s}{z})}}}$
+* $c_3 = \lmd{s}{\lmd{z}{\app{s}{\bigl(\app{s}{(\app{s}{z})}\bigr)}}}$
+
+$n$回$s$を$z$に対して呼ぶ
+--
+### 後者関数scc
+* $c_2 = \lmd{s}{\lmd{z}{\app{s}{(\app{s}{z})}}}$
+* $c_3 = \app{\mathtt{scc}}{c_2} = \lmd{s}{\lmd{z}{\app{s}{\bigl(\app{s}{(\app{s}{z})}\bigr)}}}$
+
+  $= \lmd{s}{\lmd{z}{\app{s}{(\app{\app{c_2}{s}}{z})}}}$
+
+$$\mathtt{scc} = \lmd{n}{\lmd{s}{\lmd{z}{\app{s}{(\app{\app{n}{s}}{z})}}}}$$
+
+$n$にもう1度$s$を適用する
+--
+### 加算
+$s$を$m$回繰り返して$n$回繰り返す
+
+* $\app{\app{\mathit{plus}}{m}}{n} = \app{\app{n}{s}}{(\app{\app{m}{s}}{z})}$
+* $\mathit{plus} = \lmd{m}{\lmd{n}{\lmd{s}{\lmd{z}{\app{\app{n}{s}}{(\app{\app{m}{s}}{z})}}}}}$
+--
+### 乗算
+$m\times n$は$m$回$+n$するのと同じ
+```haskell
+times m n = m (+ n) 0
+```
+
+$\mathit{times} = \lmd{m}{\lmd{n}{\lmd{s}{\lmd{z}{m\ap (\mathit{plus}\ap n)\ap c_0}}}}$
+--
+### 減算...
+
+本見よう()
+--
+### リスト
+リストの構築: cons, nil
+```haskell
+[x, y, z] = (:) x ((:) y ((:) z []))
+```
+
+$\lmd{c}{\lmd{n}{c\ap x\ap(c\ap y\ap(c\ap z\ap n))}}$
+--
+## 不動点コンビネータ
+---
+## おまけ
+* 数式の書き方
+--
+### MathML
+* MathML: XMLによる数式表現, W3C標準
+  * Firefox, Safariはsupport
+
+<pre class="extra-small"><code class="xml">
+&lt;math display='block'&gt;
+  &lt;mrow&gt;
+    &lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;
+    &lt;mfrac&gt;
+      &lt;mrow&gt;
+        &lt;mo&gt;&amp;#x2212;&lt;/mo&gt;&lt;mi&gt;b&lt;/mi&gt;&lt;mo&gt;&amp;#x00B1;&lt;/mo&gt;
+        &lt;msqrt&gt;&lt;mrow&gt;
+          &lt;msup&gt;&lt;mi&gt;b&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;
+          &lt;mo&gt;&amp;#x2212;&lt;/mo&gt;&lt;mn&gt;4&lt;/mn&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;mi&gt;c&lt;/mi&gt;
+        &lt;/mrow&gt;&lt;/msqrt&gt;
+      &lt;/mrow&gt;
+      &lt;mrow&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;/mrow&gt;&lt;/mfrac&gt;
+  &lt;/mrow&gt;&lt;/math&gt;
+</code></pre>
+<math display='block'><mrow><mi>x</mi><mo>=</mo><mfrac><mrow><mo>&#x2212;</mo><mi>b</mi><mo>&#x00B1;</mo><msqrt><mrow><msup><mi>b</mi><mn>2</mn></msup><mo>&#x2212;</mo><mn>4</mn><mi>a</mi><mi>c</mi></mrow></msqrt></mrow><mrow><mn>2</mn><mi>a</mi></mrow></mfrac></mrow></math>
+--
+### [MathJax](http://www.mathjax.org/)
+* MathMLをIE, Chromeでもサポート
+  * Chromeは裏でMathJaxを利用
+* AMS-LaTeX記法でも書ける(!)
+  * MathMLに変換 or `span` technology
+
+```tex
+$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$
+```
+
+$$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
+--
+### MathML (実例)
+<pre style="margin: 0 -10%; width: 120%; font-size: .65em;"><code class="html"><p>$\lmd{s}{\lmd{z}{\app{s}{z}}}$</p>
+
+&lt;script type="text/x-mathjax-config"&gt;
+  MathJax.Hub.Config({
+    tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[','\]']]},
+    TeX: { Macros: {
+      lmd: ['\\lambda #1. #2', 2],
+      app: ['#1\\ #2', 2],
+      ap: '\\ '
+  }}});
+&lt;/script&gt;
+&lt;script type="text/javascript"
+        src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"&gt;
+&lt;/script&gt;
+</code></pre>
+
+$\lmd{s}{\lmd{z}{\app{s}{z}}}$
+          </script>
+        </section>
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+      controls: true,
+      progress: true,
+      history: true,
+      center: true,
+
+      theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+      transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+      // Parallax scrolling
+      // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+      // parallaxBackgroundSize: '2100px 900px',
+
+      // Optional libraries used to extend on reveal.js
+      dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+      });
+    </script>
+
+    <style type="text/css">
+      .reveal .slides section p {
+      line-height: 1.7em;
+      }
+      .reveal .slides section li {
+      line-height: 1.5em;
+      }
+      .reveal pre {
+      font-size: .85em;
+      }
+      .reveal pre.extra-small {
+      font-size: .45em;
+      }
+      strong {
+      color: red;
+      }
+      code {
+      font-family: "Consolas", monospace !important;
+      }
+    </style>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\[','\]']]},
+      TeX: {
+      Macros: {
+      lmd: ['\\lambda #1. #2', 2],
+      app: ['#1\\ #2', 2],
+      ap: '\\ '
+      }
+      }});
+    </script>
+    <script type="text/javascript"
+            src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+  </body>
+</html>
