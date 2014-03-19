@@ -172,16 +172,30 @@ $\mathit{times} = \lmd{m}{\lmd{n}{\lmd{s}{\lmd{z}{m\ap (\mathit{plus}\ap n)\ap c
 ### 減算...
 
 本見よう()
---
-### リスト
+---
+## リスト
 リストの構築: cons, nil
 ```haskell
 [x, y, z] = (:) x ((:) y ((:) z []))
 ```
 
 $\lmd{c}{\lmd{n}{c\ap x\ap(c\ap y\ap(c\ap z\ap n))}}$
+
+* リスト=foldrそのもの
 --
-## 不動点コンビネータ
+### cons, nilを定義しよう
+* $\mathtt{cons} = \lmd{h}{\lmd{t}{\lmd{c}{\lmd{n}{c\ap h \ap t}}}}$
+
+* $\mathtt{nil} = \lmd{c}{\lmd{n}{n}}$
+
+  `fls`, 0と同じ
+--
+### foldr
+```haskell
+foldr (+) 1 [1, 2, 3] = (1 + (2 + (3 + 1)))
+```
+
+$\mathtt{foldr} = \lmd{f}{\lmd{x}{\lmd{l}{\lmd{c}{\lmd{n}{l\ap f\ap x}}}}}$
 ---
 ## おまけ
 * 数式の書き方
@@ -219,7 +233,7 @@ $x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$
 
 $$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
 --
-### MathML (実例)
+### MathJAX (TeX)
 <pre style="margin: 0 -10%; width: 120%; font-size: .65em;"><code class="html"><p>$\lmd{s}{\lmd{z}{\app{s}{z}}}$</p>
 
 &lt;script type="text/x-mathjax-config"&gt;
