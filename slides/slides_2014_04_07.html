@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ja-jp">
+
+  <head>
+	<meta charset="utf-8">
+
+	<title>TAPL (型システム入門)読書 - #03 @2014-04-07</title>
+
+	<meta name="description" content="型システム入門の読書会スライド #03 @2014-04-07">
+	<meta name="author" content="liquid_amber">
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<link rel="stylesheet" href="css/reveal.min.css">
+	<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+	<!-- For syntax highlighting -->
+	<link rel="stylesheet" href="lib/css/zenburn.css">
+
+	<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+	<script>
+	  document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+	</script>
+
+	<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+  </head>
+
+  <body>
+    <div class="reveal">
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section data-markdown
+                 data-separator="\n---\n"
+                 data-vertical="\n--\n">
+          <script type="text/template">
+## TAPL 読書会 #03
+liquid_amber
+---
+## 前回のおさらい
+* ラムダ計算いろいろ
+  * 数(Church数)
+  * リスト
+---
+## 本日のAgenda
+* (まだまだ)ラムダ計算
+  * プリミティブの導入
+  * 再帰
+  * 形式的定義
+---
+## プリミティブ
+* ブール値・数はラムダ計算で表せる
+  * が、不便
+  * 本物のブール・数があると便利
+--
+### $\lambda_{NB}$
+* 型なし算術式のブールと数
+  * Church bool, 数と変換したい
+--
+### ブール(Church⇔Prim)
+* $\mathtt{realbool} = \lmd{b}{b\ap \mathtt{true}\ap \mathtt{false}}$
+  * `test`の応用
+* $\mathtt{churchbool} = \lmd{b}{\ifexpr{b}{\mathtt{tru}}{\mathtt{fls}}}$
+  * 組み込みif文
+--
+### 数
+* $\mathtt{realnat} = \lmd{m}{m\ap (\lmd{x}{\mathtt{succ}\ap x})\ap 0$
+  * $s$に$succ$を, $z$に$0$を代入
+--
+### プリミティブ数の便利さ
+* 評価を強制する
+  * Church数は〜〜を受け取って＊＊を返すクロージャのお化け
+    * 実際に数にしてしまえばとにかく値になってくれる
+---
+## 再帰
+* プログラムで重要なのは再帰
+  * ループなからずんばチューリング完全にあらず
+  * ふつうのプログラミング言語: 再帰簡単
+
+```javascript
+function fib(n) {
+    if(n < 2) { return 1; }
+    return fib(n-1) + fib(n-2);
+}
+```
+--
+### ラムダ計算の再帰
+* むずい
+  * 自分を呼ぼうにも自分の名がない
+  * 頑張って呼ぶ魔法はある
+    * **不動点コンビネータ**
+--
+### 不動点コンビネータ
+* コンビネータ is 何
+  * 自由変項のない項
+  * 今扱ってるのは全部これ
+* 不動点 is 何
+  * TBD
+--
+### 不動点コンビネータ(式)
+* $\mathtt{fix} = \lmd{f}{(\lmd{x}{f\ap(\lmd{y}{x\ap x\ap y})})\ap(\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})}$
+
+> 定義を読んだだけで理解することは難しい。
+--
+$ \mathtt{fix} f = (\lmd{x}{f\ap(\lmd{y}{x\ap x\ap y})})\ap(\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})$
+
+$= f\ap(\lmd{y}{(\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})\ap(\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})\ap y})$
+
+$= $
+--
+### 階乗の定義(js)
+```javascript
+// return n * (n-1) * ... * 1
+function factorial(n) {
+  return (n <= 0) ? 1
+                  : n * factorial(n-1);
+}
+```
+--
+### 階乗の定義(ラムダ計算)
+$$
+g = \lmd{\mathit{fct}}{\lmd{n}{\ifexpr{\mathtt{iszero}\ap n}{1}{n\times (\mathit{fct}\ap(n - 1))}}} \\\\
+\mathit{factorial} = fix g
+$$
+-- 階乗の式展開
+           </script>
+        </section>
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+      controls: true,
+      progress: true,
+      history: true,
+      center: true,
+
+      theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+      transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+      // Parallax scrolling
+      // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+      // parallaxBackgroundSize: '2100px 900px',
+
+      // Optional libraries used to extend on reveal.js
+      dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+      });
+    </script>
+
+    <style type="text/css">
+      .reveal .slides section p {
+      line-height: 1.7em;
+      }
+      .reveal .slides section li {
+      line-height: 1.5em;
+      }
+      .reveal pre {
+      font-size: .85em;
+      }
+      .reveal pre.extra-small {
+      font-size: .45em;
+      }
+      strong {
+      color: red;
+      }
+      code {
+      font-family: "Consolas", monospace !important;
+      }
+    </style>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\[','\]']]},
+      TeX: {
+      Macros: {
+      lmd: ['\\lambda #1. #2', 2],
+      app: ['#1\\ #2', 2],
+      ap: '\\ ',
+      ifexpr: ['\\mathtt{if}\\ #1\\ \\mathtt{then}\\ #2\\ \\mathtt{else}\\ #3', 3],
+      }
+      }});
+    </script>
+    <script type="text/javascript"
+            src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+  </body>
+</html>
