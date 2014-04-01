@@ -231,12 +231,15 @@ function(x) { return x * 2; } (x + 5);
 * 1つ目の引数を取って関数を返す
   * クロージャ
   * カリー化
+
 ```javascript
 plus = function(x){
     return function(y){
         return x + y;
     }
 }
+
+3 == plus(1)(2);
 ```
 --
 ### if文/Bool値
