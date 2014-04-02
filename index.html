@@ -38,10 +38,37 @@
                     <section>
                         <h2>発表資料</h2>
                         <dl>
-                            <dt><a href="slides/slides_2014_03_10.html">第1回 (2014-03-10)</a></dt>
-                            <dd><p>この回ではまず書籍の前から読んでいきまえがき、序文を通って型なし算術式に触れた。特に型なし算術式の形式的な構文定義と、操作的意味論に基づく評価規則について解説した。その中で評価の一意性が適切に守られていることを確認した。最後に、型なしラムダ計算に少しだけ入ってラムダ計算におけるif文とBool値の導入までを済ませた。</p></dd>
-                            <dt><a href="slides/slides_2014_03_17.html">第2回 (2014-03-17)</a></dt>
-                            <dd><p>この回はラムダ計算の続きでBool代数の代表的な操作(and, or, notなど)を見た。続いてラムダ計算によるタプル、Church数による数の表現と加減算や乗算なども見た。最後に、データ構造の例としてリストに触れた。</p></dd>
+                          <dt><a href="slides/slides_2014_03_10.html">第1回 (2014-03-10)</a></dt>
+                          <dd>
+                            <ul>
+                              <li>計算式を<strong>形式的に</strong>定義する</li>
+                              <li>プログラミング言語=syntaxとsemantics, 評価は意味だからsemantics</li>
+                              <li>syntaxはbottom-upに構成, 評価はtop-down</li>
+                              <li>評価は一意なのが大事, 常に一意に式に変形できる(ないしすでに値、あるいは行き詰まり)</li>
+                              <li>ラムダ計算: すべて関数</li>
+                              <li>Bool値を定義する</li>
+                            </ul>
+                          </dd>
+                          <dt><a href="slides/slides_2014_03_17.html">第2回 (2014-03-17)</a></dt>
+                          <dd>
+                            <ul>
+                              <li>圧倒的にラムダ計算</li>
+                              <li>Bool代数の代表的な操作(and, or, not, ...)</li>
+                              <li>タプル</li>
+                              <li>Church数で数も関数に</li>
+                              <li>加減算や乗算</li>
+                              <li>データ構造</li>
+                              <li>リスト</li>
+                              <li>
+                                ラムダ計算: アルゴリズム・端的に言えば動作が値・データ構造を規定する
+                                <ul>
+                                  <li>if文でthen節を選択するのが<code>tru</code>, else節が<code>fls</code></li>
+                                  <li>zにn回sすることがnという数の本質</li>
+                                  <li>x, y, z, 初期値にfoldできることがリストの本質</li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </dd>
                         </dl>
                     </section>
                 </article>
