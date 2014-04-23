@@ -83,7 +83,124 @@ liquid_amber
 <!--なぜか t_{12} と書けない-->
 --
 ### 代入とは
-* 当たり前すぎて難しい
+* 代入先の式の仮引数を実引数に置き換える
+  * 言ってみれば文字列置換みたいなもの
+
+```javascript
+(function(x) {
+  return x + 2;
+})(y + 5) == (y + 5) + 2
+```
+--
+### 代入の嘘定義1
+* 単純にラムダ式中の引数を置換
+
+$$
+[x \to s]x = s \\\\
+[x \to s]y = y \quad\text{ただし$x \neq y$} \\\\
+[x \to s] (\lmd{y}{t_1}) = \lmd{y}{[x\to s] t_1} \\\\
+[x \to s] (t_1 \ap t_2) = ([x \to s]t_1)\ap([x \to s]t_2)
+$$
+--
+### 代入の嘘定義1 問題点
+* ダメな例 $[x \to y] (\lmd{x}{x}) \Rightarrow \lmd{x}{y}$
+
+  * $\lmd{x}{x}$は恒等関数id
+
+  * $\lmd{z}{z}$と書いても同じはず
+
+  * $[x \to y] (\lmd{z}{z}) \Rightarrow \lmd{z}{z}$
+
+  * まるで別物
+
+  * 代入先の**スコープを無視**しているのが原因
+
+    * 束縛変数を置換してはいけない
+--
+### 代入の嘘定義2
+* 束縛変数を無視したらおｋ
+
+\\[\begin{aligned}
+&[x \to s] x &&= s \\\\
+&[x \to s] y &&= y \quad\text{$y \neq x$} \\\\
+&[x \to s] (\lmd{y}{t_1}) &&=
+\begin{cases}
+\lmd{y}{t_1} & \text{$y = x$} \\\\
+\lmd{y}{[x \to s] t_1} & \text{$y \neq x$}
+\end{cases} \\\\
+&[x \to s] (t_1 \ap t_2) &&= ([x \to s] t_1)\ap([x \to s] t_2)
+\end{aligned}\\]
+--
+### 嘘定義2 問題点
+* ダメな例 $[x \to z] (\lmd{z}{x}) \Rightarrow \lmd{z}{z}$
+
+  * 置換した先が仮引数とかぶる
+    * 自由変数の$x$が置換時に束縛変数$z$に
+    * **変数捕獲**
+--
+### 正しい代入
+変数捕獲を避ける**変数捕獲代入**
+
+\\[\begin{aligned}
+&[x \to s] x &&= s \\\\
+&[x \to s] y &&= y \quad\text{$y \neq x$} \\\\
+&[x \to s] (\lmd{y}{t_1}) &&=
+\begin{cases}
+\lmd{y}{t_1} & \text{$y = x$} \\\\
+\lmd{y}{[x \to s] t_1} & \text{$y \neq x$かつ$y\notin \mathit{FV}(s)$}
+\end{cases} \\\\
+&[x \to s] (t_1 \ap t_2) &&= ([x \to s] t_1)\ap([x \to s] t_2)
+\end{aligned}\\]
+--
+### 正しい代入の注意
+* さっきの式が評価できない
+
+  $[x \to z] (\lmd{z}{x})$
+
+  * **アルファ変換**
+
+    $[x \to z] (\lmd{\underline{y}}{x})$
+---
+## 不動点コンビネータ again
+参考 http://uid0130.blogspot.jp/2013/07/y.html
+--
+### 結論
+不動点コンビネータ$Z$に対して
+
+\\[\begin{aligned}
+Z\ap f &\betaReduce f\ap Z' \\\\
+&\betaReduce f\ap f\ap Z' \\\\
+&\betaReduce f \ap f\ap f\ap Z' \\\\
+&\cdots
+\end{aligned}\\]
+--
+### 階乗計算の例
+まず前提
+
+\\[\begin{aligned}
+Z &= \lmd{f}{(\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})\ap (\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})} \\\\
+g &= \lmd{f}{\lmd{n}{\text{if}\ n == 0\ \text{then}\ 1\ \text{else}\ n * f\ap (n - 1)}} \\\\
+Z\ap g\ap 3 &= ???
+\end{aligned}\\]
+--
+### 式展開
+<div style="font-size: 70%;">
+\\[\begin{aligned}
+Z\ap g &= (\lmd{f}{(\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})\ap (\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})}) \ap g \\\\
+&= (\lmd{x}{\underline{g}\ap (\lmd{y}{x\ap x\ap y})})\ap (\lmd{x}{\underline{g}\ap (\lmd{y}{x\ap x\ap y})}) \quad\text{E-AppAbs} \\\\
+&= (\lmd{x}{g\ap (\lmd{\underline{z}}{x\ap x\ap \underline{z}})})\ap (\lmd{x}{g\ap (\lmd{y}{x\ap x\ap y})}) \quad\text{$\alpha$変換} \\\\
+&= g\ap (\lmd{z}{\underline{(\lmd{x}{g\ap (\lmd{y}{x\ap x\ap y})})}\ap \underline{(\lmd{x}{g\ap (\lmd{y}{x\ap x\ap y})})}\ap z}) \quad\text{E-AppAbs} \\\\
+Z' &\defeq (\lmd{z}{(\lmd{x}{g\ap (\lmd{y}{x\ap x\ap y})})\ap (\lmd{x}{g\ap (\lmd{y}{x\ap x\ap y})})\ap z}) \quad\text{と略すると} \\\\
+Z\ap g &= g\ap Z' \\\\
+&= (\lmd{f}{\lmd{n}{\text{if}\ n == 0\ \text{then}\ 1\ \text{else}\ n \times f\ap (n - 1)}})\ap Z' \\\\
+&= \lmd{n}{\text{if}\ n == 0\ \text{then}\ 1\ \text{else}\ n \times Z' \ap (n - 1)} \quad\text{E-AppAbs} \\\\
+Z\ap g\ap 3 &= 3 \times Z' \ap 2 \quad\text{E-AppAbs}\\\\
+Z'\ap 2 &= \underline{(\lmd{x}{g\ap (\lmd{y}{x\ap x\ap y})})\ap (\lmd{x}{g\ap (\lmd{y}{x\ap x\ap y})})}\ap 2 \\\\
+&= (Z\ap g)\ap 2 \\\\
+&= 2 \times Z' 1
+\end{aligned}\\]
+</div>
+こんな感じ
            </script>
         </section>
       </div>
@@ -147,13 +264,15 @@ liquid_amber
     </style>
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\[','\]']]},
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']]},
       TeX: {
       Macros: {
       lmd: ['\\lambda #1. #2', 2],
       app: ['#1\\ #2', 2],
       ap: '\\ ',
       ifexpr: ['\\mathtt{if}\\ #1\\ \\mathtt{then}\\ #2\\ \\mathtt{else}\\ #3', 3],
+      betaReduce: '\\underset{\\beta}{\\longrightarrow}',
+      defeq: '\\underset{\\text{def}}{=}',
       }
       }});
     </script>
