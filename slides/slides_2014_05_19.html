@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ja-jp">
+
+  <head>
+	<meta charset="utf-8">
+
+	<title>TAPL (型システム入門)読書 - #05 @2014-05-19</title>
+
+	<meta name="description" content="型システム入門の読書会スライド #05 @2014-05-19">
+	<meta name="author" content="liquid_amber">
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<link rel="stylesheet" href="css/reveal.min.css">
+	<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+	<!-- For syntax highlighting -->
+	<link rel="stylesheet" href="lib/css/zenburn.css">
+
+	<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+	<script>
+	  document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+	</script>
+
+	<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+  </head>
+
+  <body>
+    <div class="reveal">
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section data-markdown
+                 data-separator="\n---\n"
+                 data-vertical="\n--\n">
+          <script type="text/template">
+## TAPL 読書会 #05
+
+2014-05-19
+
+liquid_amber
+---
+## 前回のおさらい
+* 形式的ラムダ計算の定義
+  * 構文規則
+  * 評価規則
+    * 変数捕獲を回避するα変換
+---
+## 今日のAgenda
+* 型なし算術式(8章)
+  * 6章名無し項は一旦飛ばします
+  * いよいよ型が付く！
+--
+### 言語に型が付くとは
+* 静的型付け言語
+  * 評価なしで型をチェック
+    * 型の規則が必要
+    * 型付けできたら行き詰まらない
+--
+### 型付けTodo List
+* 式に型を付ける方法
+* 型の安全性
+  * 進行性
+    * 型が付いていると行き詰まらない
+  * 保存性
+    * 型が付いた式は評価しても型付いている
+--
+### 注意事項
+* メタ変項$s$, $t$, $u$は項に付く
+* メタ変項$S$, $T$, $U$は型に付く
+---
+## 型付け規則
+--
+### Bool型の規則
+
+評価関係のように型付け関係も定義する
+
+$$
+\hastype{\mathtt{true}}{\mathrm{Bool}} \quad \text{T-True}\\\\
+\hastype{\mathtt{false}}{\mathrm{Bool}} \quad \text{T-False}\\\\
+\frac{\hastype{t_1}{Bool}\quad \hastype{t_2}{T}\quad \hastype{t_3}{T}}
+{\hastype{\ifexpr{t_1}{t_2}{t_3}}{T}} \quad \text{T-If}
+$$
+
+* `true`, `false`はBool型
+* if文の条件節はBool型
+* then節とelse節は同じ型$T$
+  * 結果も同じ型
+--
+### Nat型の型付け規則
+$$
+\hastype{0}{\text{Nat}}
+\quad\text{T-Zero}\\\\
+\frac{\hastype{t_1}{\text{Nat}}}{\hastype{\mathtt{succ}\ap t_1}{\text{Nat}}}
+\quad\text{T-Succ}\\\\
+\frac{\hastype{t_1}{\text{Nat}}}{\hastype{\mathtt{pred}\ap t_1}{\text{Nat}}}
+\quad\text{T-Pred}\\\\
+\frac{\hastype{t_1}{\text{Nat}}}{\hastype{\mathtt{iszero}\ap t_1}{\text{Bool}}}
+\quad\text{T-IsZero}
+$$
+--
+### 型付け関係
+* 型付け関係
+  * 先の推論規則からなる最小の二項関係
+* $t$が**型付け可能**=**正しく型付けされて**いる
+  * 項$t$に型$T$が存在し$\hastype{t}{T}$
+--
+### 型付け関係の逆転
+さっきの推論規則の逆
+
+1. $\hastype{\mathtt{true}}{R}$なら$R=\mathrm{Bool}$
+2. $\hastype{\mathtt{false}}{R}$なら$R=\mathrm{Bool}$
+3. $\hastype{\ifexpr{t_1}{t_2}{t_3}}{R}$なら
+
+   $\hastype{t_1}{\mathrm{Bool}},\ \hastype{t_2}{R},\ \hastype{t_3}{R}$
+4. 以下略
+
+帰納的証明に必要
+---
+## 型安全性
+2つの定理を証明する
+
+* 進行定理
+* 保存定理
+--
+### 進行定理
+型付けされた項は行き詰まりではない
+--
+### 標準形補題
+値と型の関係
+
+1. $v$がBool型の値なら$v$は$\mathtt{true}$か$\mathtt{false}$
+2. $v$がNat型の値なら$v$は$0$か$\mathtt{succ}\ap \mathit{nv}$
+----
+#### 証明
+値の形と逆転補題より明らか
+--
+### 進行定理
+$t$が正しく型付けされた項と仮定すると
+
+$t$は値であるか、
+或いはある$t'$が存在し$t \to t'$
+
+----
+#### 証明
+(略)
+--
+### 保存定理
+一般に
+$\hastype{t}{T}$かつ$t\to t'$の時
+${}^\exists{T'}\ \text{s.t.}\ \hastype{t'}{T'}$
+
+算術式においては
+$\hastype{t}{T}\land t \to t'\vdash \hastype{t'}{T}$
+
+-----
+#### 証明
+(略)
+           </script>
+        </section>
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+      controls: true,
+      progress: true,
+      history: true,
+      center: true,
+
+      theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+      transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+      // Parallax scrolling
+      // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+      // parallaxBackgroundSize: '2100px 900px',
+
+      // Optional libraries used to extend on reveal.js
+      dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+      });
+    </script>
+
+    <style type="text/css">
+      .reveal .slides section p {
+      line-height: 1.7em;
+      }
+      .reveal .slides section li {
+      line-height: 1.5em;
+      }
+      .reveal pre {
+      font-size: .85em;
+      }
+      .reveal pre.extra-small {
+      font-size: .45em;
+      }
+      strong {
+      color: red;
+      }
+      code {
+      font-family: "Consolas", monospace !important;
+      }
+      .ruleName {
+      font-weight: bold !important;
+      font-variant: small-caps !important;
+      font-family: serif !important;
+      }
+    </style>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']]},
+      TeX: {
+      Macros: {
+      lmd: ['\\lambda #1. #2', 2],
+      app: ['#1\\ #2', 2],
+      ap: '\\ ',
+      ifexpr: ['\\mathtt{if}\\ #1\\ \\mathtt{then}\\ #2\\ \\mathtt{else}\\ #3', 3],
+      betaReduce: '\\underset{\\beta}{\\longrightarrow}',
+      defeq: '\\underset{\\text{def}}{=}',
+      hastype: ['#1:#2', 2]
+      }
+      }});
+    </script>
+    <script type="text/javascript"
+            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-407503-8', 'liquidamber.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </body>
+</html>
