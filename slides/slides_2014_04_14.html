@@ -99,14 +99,14 @@ function fib(n) {
   * 自由変項のない項
   * 今扱ってるのは全部これ
 * 不動点 is 何
-  * TBD
+  * $f$に対して$x\ \text{ s.t. } f\ap x = x$
 --
 ### 不動点コンビネータ(式)
 * $\mathtt{fix} = \lmd{f}{(\lmd{x}{f\ap(\lmd{y}{x\ap x\ap y})})\ap(\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})}$
 
 > 定義を読んだだけで理解することは難しい。
 --
-$ \mathtt{fix} f = (\lmd{x}{f\ap(\lmd{y}{x\ap x\ap y})})\ap(\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})$
+$ \mathtt{fix}\ap f = (\lmd{x}{f\ap(\lmd{y}{x\ap x\ap y})})\ap(\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})$
 
 $= f\ap(\lmd{y}{(\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})\ap(\lmd{x}{f\ap (\lmd{y}{x\ap x\ap y})})\ap y})$
 
@@ -124,7 +124,7 @@ function factorial(n) {
 ### 階乗の定義(ラムダ計算)
 $$
 g = \lmd{\mathit{fct}}{\lmd{n}{\ifexpr{\mathtt{iszero}\ap n}{1}{n\times (\mathit{fct}\ap(n - 1))}}} \\\\
-\mathit{factorial} = fix g
+\mathit{factorial} = \mathtt{fix}\ap g
 $$
 -- 階乗の式展開
            </script>
