@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja-jp">
+
+  <head>
+	<meta charset="utf-8">
+
+	<title>TAPL (型システム入門)読書 - #06 @2014-05-26</title>
+
+	<meta name="description" content="型システム入門の読書会スライド #06 @2014-05-26">
+	<meta name="author" content="liquid_amber">
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<link rel="stylesheet" href="css/reveal.min.css">
+	<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+	<!-- For syntax highlighting -->
+	<link rel="stylesheet" href="lib/css/zenburn.css">
+
+	<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+	<script>
+	  document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+	</script>
+
+	<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+  </head>
+
+  <body>
+    <div class="reveal">
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section data-markdown
+                 data-separator="\n---\n"
+                 data-vertical="\n--\n">
+          <script type="text/template">
+## TAPL 読書会 #06
+
+2014-05-26
+
+liquid_amber
+---
+## 前回のおさらい
+* 型を式に付ける
+  * 型付け規則
+  * 型の満たすべき性質
+    * 進行性
+    * 保存性
+---
+## その前にちょっと
+* 部内のLTでTAPLをｇｄｇｄ喋った
+  * 喋らないほうが良かった
+  * 質問「数学上の公理系はどのようなものを選んでるんですか？」
+  * ???
+---
+## 今日のAgenda
+* 単純型付きラムダ計算(9章)
+---
+## 関数型
+* ラムダ計算に型を付けたい
+* ラムダ計算には関数しか無い
+* 関数に型を付けねばならぬ
+
+$$
+\hastype{\lmd{x.t}}{{\to}}
+$$
+
+型付けたった(ダメだ)
+--
+### 関数の型に欲しい要件
+* 関数であること以外に
+  * 引数の型
+  * 戻り値の型
+* これで大丈夫
+  * (全部1引数だし)
+
+$$
+\hastype{\lmd{\hastype{x}{T_1}}{t_2}}{T_1 \to T_2}
+$$
+
+* 型$T_1$を持つ$x$を受け取って
+* 型$T_2$を持つ$t_2$を返す
+* 関数の型は$T_1 \to T_2$
+--
+### 注意点
+* **明示的**に型付けされている
+  * 引数の型を明示して書く
+  * 22章で推論するよ
+--
+### 型付け規則
+
+$$
+\frac{\derive{\hastype{x}{T_1}}{\hastype{t_2}{T_2}}}
+{\derive{}{\hastype{\lmd{\hastype{x}{T_1}}{t_2}}{T_1 \to T_2}}}
+$$
+
+* $t_2$には$x$が埋め込まれている
+  * $x$の型なしでは$t_2$の型わからん
+  * $\vdash$は環境
+  * よく考えたら他にも~~の型が~~ってパターンありそう
+  * $\Gamma$で表現しよう
+--
+### 型付け規則(again)
+
+$$
+\frac{\derive{\Gamma, \hastype{x}{T_1}}{\hastype{t_2}{T_2}}}
+{\derive{}{\hastype{\lmd{\hastype{x}{T_1}}{t_2}}{T_1 \to T_2}}}
+\quad \text{T-Abs}
+$$
+          </script>
+        </section>
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+      controls: true,
+      progress: true,
+      history: true,
+      center: true,
+
+      theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+      transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+      // Parallax scrolling
+      // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+      // parallaxBackgroundSize: '2100px 900px',
+
+      // Optional libraries used to extend on reveal.js
+      dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+      });
+    </script>
+
+    <style type="text/css">
+      .reveal .slides section p {
+      line-height: 1.7em;
+      }
+      .reveal .slides section li {
+      line-height: 1.5em;
+      }
+      .reveal pre {
+      font-size: .85em;
+      }
+      .reveal pre.extra-small {
+      font-size: .45em;
+      }
+      strong {
+      color: red;
+      }
+      code {
+      font-family: "Consolas", monospace !important;
+      }
+      .ruleName {
+      font-weight: bold !important;
+      font-variant: small-caps !important;
+      font-family: serif !important;
+      }
+    </style>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']]},
+      TeX: {
+      Macros: {
+      lmd: ['\\lambda #1. #2', 2],
+      app: ['#1\\ #2', 2],
+      ap: '\\ ',
+      ifexpr: ['\\mathtt{if}\\ #1\\ \\mathtt{then}\\ #2\\ \\mathtt{else}\\ #3', 3],
+      betaReduce: '\\underset{\\beta}{\\longrightarrow}',
+      defeq: '\\underset{\\text{def}}{=}',
+      hastype: ['#1:#2', 2],
+      derive: ['#1\\vdash #2', 2]
+      }
+      }});
+    </script>
+    <script type="text/javascript"
+            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-407503-8', 'liquidamber.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </body>
+</html>
