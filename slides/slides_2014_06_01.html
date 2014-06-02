@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja-jp">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>TAPL (型システム入門)読書 - #07 @2014-06-01</title>
+
+    <meta name="description" content="型システム入門の読書会スライド #07 @2014-06-01">
+    <meta name="author" content="liquid_amber">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+  </head>
+
+  <body>
+    <div class="reveal">
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section data-markdown
+                 data-separator="\n---\n"
+                 data-vertical="\n--\n">
+          <script type="text/template">
+## TAPL 読書会 #07
+
+2014-06-01
+
+liquid_amber
+---
+## 前回のおさらい
+* ラムダ計算と型
+  * 型付け規則
+  * 型付け文脈(環境)
+    * 環境から式の型が導出できる
+--
+### ラムダ計算の型の導出規則
+$$
+\frac{\hastype{x}{T} \in \Gamma}{\derive{\Gamma}{\hastype{x}{T}}}
+$$
+
+-----
+
+$$
+\frac{\derive{\Gamma, \hastype{x}{T_1}}{\hastype{t_2}{T_2}}}{\derive{\Gamma}{\tlmdt{x}{T_1}{t_2}{T_2}}}
+$$
+
+-----
+
+$$
+\frac{\derive{\Gamma}{\hastype{t\_{1}}{T\_{11} \to T\_{12}}} \quad \derive{\Gamma}{\hastype{t\_2}{T\_{11}}}}
+{\derive{\Gamma}{\hastype{{t\_1} \ap {t\_2}}{T\_{12}}}}
+$$
+--
+### 演習 9.2.2.
+次の項が与えられた型を持つことを示せ
+
+1. $\derive{\hastype{f}{\Bool\to\Bool}}{\hastype{f \ap (\ifexpr{\false}{\true}{\false})}{\Bool}}$
+2. $\derive{\hastype{f}{\Bool\to\Bool}}{\tlmdt{x}{\Bool}{f\ap(\ifexpr{x}{\false}{x})}{\Bool}}$
+--
+### 型付け関係の逆転
+(板書)
+
+式の形を見れば型がわかる
+--
+### 演習9.3.2.
+$\derive{\Gamma}{\hastype{x\ap x}{T}}$を満たすような$\Gamma, T$は存在するか
+
+-----
+
+上を満たす$\Gamma, T$が存在すると仮定すると
+
+逆転補題より
+$\derive{\Gamma}{\hastype{x}{T\_{11}\to T}}$かつ$\derive{\Gamma}{\hastype{x}{T\_{11}}}$
+
+$\Gamma$中に$x$の束縛はただひとつなので$T\_{11} \to T = T\_{11}$
+
+定理9.3.3.より型付け導出は一意すなわち型付け導出の深さも一意であることと矛盾
+
+存在しない
+--
+### 定理9.3.3.
+型の一意性
+
+式の形で場合分け
+--
+### 補題9.3.4.
+標準形
+
+1. 値$v$が$\Bool$型なら$\true$ないし$\false$
+2. 値$v$が$T\_1\to T\_2$の型なら$v=\tlmd{x}{T_1}{t_2}$
+--
+### 定理9.3.5.
+進行定理
+--
+## 補題 9.3.6.
+並べ替え
+--
+## 補題 9.3.7.
+弱化
+--
+## 代入補題 9.3.8.
+$\derive{\Gamma,\hastype{x}{S}}{\hastype{t}{T}}$かつ
+$\derive{\Gamma}{\hastype{s}{S}}$ならば
+$\derive{\Gamma}{\hastype{[x \mapsto s]t}{T}}$
+--
+### 定理9.3.9.
+型の保存
+---
+## Curry-Howard対応
+こうなる！！！
+
+* 命題は型
+* 命題$P\to Q$は型$P\to Q$
+* 命題$P\land Q$は型$P\times Q$ = $(P, Q)$
+* 命題$P$の証明は$P$の項$t$
+* 命題$P$が証明可能は項$t$が存在すること
+          </script>
+        </section>
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+      controls: true,
+      progress: true,
+      history: true,
+      center: true,
+
+      theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+      transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+      // Parallax scrolling
+      // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+      // parallaxBackgroundSize: '2100px 900px',
+
+      // Optional libraries used to extend on reveal.js
+      dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+      });
+    </script>
+
+    <style type="text/css">
+      .reveal .slides section p {
+      line-height: 1.7em;
+      }
+      .reveal .slides section li {
+      line-height: 1.5em;
+      }
+      .reveal pre {
+      font-size: .85em;
+      }
+      .reveal pre.extra-small {
+      font-size: .45em;
+      }
+      strong {
+      color: red;
+      }
+      code {
+      font-family: "Consolas", monospace !important;
+      }
+      .ruleName {
+      font-weight: bold !important;
+      font-variant: small-caps !important;
+      font-family: serif !important;
+      }
+    </style>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+      tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']]},
+      TeX: {
+      Macros: {
+      lmd: ['\\lambda #1. #2', 2],
+      app: ['#1\\ #2', 2],
+      ap: '\\ ',
+      ifexpr: ['\\mathtt{if}\\ #1\\ \\mathtt{then}\\ #2\\ \\mathtt{else}\\ #3', 3],
+      betaReduce: '\\underset{\\beta}{\\longrightarrow}',
+      defeq: '\\underset{\\text{def}}{=}',
+      hastype: ['#1:#2', 2],
+      derive: ['#1\\vdash #2', 2],
+      tlmd: ['\\lmd{_{\\hastype{#1}{#2}}}{#3}', 3],
+      tlmdt: ['\\hastype{\\tlmd{#1}{#2}{#3}}{#2 \\to #4}', 4],
+      Bool: '\\mathrm{Bool}',
+      Nat: '\\mathrm{Nat}',
+      true: '\\mathrm{true}',
+      false: '\\mathrm{false}',
+      }
+      }});
+    </script>
+    <script type="text/javascript"
+            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-407503-8', 'liquidamber.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </body>
+</html>
