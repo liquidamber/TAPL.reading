@@ -48,7 +48,9 @@ liquid_amber
 ---
 ## Agenda
 * 基本型(Atomic Type)
-* 
+* 派生形式
+* 型指定
+* let束縛
 ---
 ## 基本型
 --
@@ -68,9 +70,36 @@ liquid_amber
   * 面倒
 * 特別扱いしない
   * 型システムにとって未知の型$A$
-    * 処理系は$A$を引数・戻り値に取る関数(API)を用意
+    * 処理系は$\AtomType$を引数・戻り値に取る関数(API)を用意
+  * こんな関数は普通に書ける
+    * $\tlmdt{x}{\AtomType}{x}{\AtomType}$
+--
+### Unit型
+* 特別な基本型
+
+  $\hastype{\mathrm{unit}}{\mathrm{Unit}}$
+--
+### 現実世界のUnit (C++)
+```cpp
+void print(int x);
+```
+
+* intを受け取って何も返さない
+  * 裏で何かしているっぽい
+* 嘘: 「何も返していない」
+  * 真: 「void=Unit型を返している」
+--
+### 現実世界のUnit (C++)
+```haskell
+main :: IO ()
+```
+
+* `()=Unit`型を返すけど裏(`IO`)でこっそりなんかしてる
+  * C++と違って型に副作用が現れている
 ---
-## Unit型と逐次実行
+## 逐次実行
+--
+### 派生形式
           </script>
         </section>
       </div>
@@ -151,6 +180,7 @@ liquid_amber
       Nat: '\\mathrm{Nat}',
       true: '\\mathrm{true}',
       false: '\\mathrm{false}',
+      AtomType: '\\mathcal{A}',
       }
       }});
     </script>
