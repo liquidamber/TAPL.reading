@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>10分でわかるRust</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      @import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(http://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif', sans-serif; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono', monospace; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# 10分でわかるRust
+
+liquid_amber
+
+2014/07/28 #11
+
+---
+
+# Agenda
+
+1. Rustについて
+2. Cっぽさ
+3. 高級っぽさ
+4. キモい部分
+
+---
+
+# Rustって何？
+
+> Rust is a systems programming language
+> that runs blazingly fast, prevent almost
+> all crashes[theoretical], and eliminates
+> data races.
+http://www.rust-lang.org/
+
+* システムレベルのプログラミングで
+  - スタック, ヒープを区別したメモリ確保
+  - メモリアドレスの操作
+  - 小さいランタイム(嘘)
+* 高水準な言語仕様と
+  - 代数的データ構造/パターンマッチ
+  - クロージャ, メモリ安全性(*)
+* 高性能を両立させる言語
+  - Actorモデル, タスク並列
+  - ネイティブコード生成
+
+---
+
+インストール&amp;使い方
+-----------------------
+* Linux, Mac, Windows用バイナリ
+* ソースコンパイル
+  - bootstrap用rustcが必要
+* Web上のデモ
+  - http://play.rust-lang.org/
+
+```bash
+cat > hello.rs <<EOT
+fn main() {
+    println!("Hello, world!");
+}
+EOT
+rustc hello.rs
+./hello
+```
+* rustcでコンパイルして実行
+  - replは現時点で未実装
+  - ライブラリを作る方法はある(crate)
+* エディタサポートは充実
+  - Emacs, Sublime Text 2, Vim
+
+---
+
+class: center
+
+# Cっぽい言語としてのRust
+
+* ### 構文
+* ### メモリ周り(あとで)
+
+---
+
+# 構文
+
+```rust
+fn main() {
+    loop { // 無限ループ用構文
+        if true || false { // ()不要, {}強制
+            while false {
+                println!("Hello, world!");
+            }
+        }
+    }
+}
+```
+
+* Cっぽい
+  - ifとかwhileの`()`は不要
+  - `{}`は強制
+
+---
+
+if文ではなくif式
+----------------
+Cっぽい書き方
+
+```rust
+let price: f64;
+if item == "salad" {
+    price = 3.50;
+} else if item == "muffin" {
+    price = 2.25;
+} else {
+    price = 2.00;
+}
+```
+
+Rustっぽい書き方
+
+```rust
+let price: f64 =
+    if item == "salad" {
+        3.50
+    } else if item == "muffin" {
+        2.25
+    } else {
+        2.00
+    };
+```
+
+---
+
+;で式の意味が変わる
+-------------------
+
+* C/C++では文を区切る記号`;`
+* Rustでは少し違う
+  - unit型`()`の導出
+  - 式の結果を捨てる
+  - `{}`の中にしか書けない?
+
+```rust
+let x: int =
+    if true {
+        1
+    } else {
+        2
+    };
+let y: () =
+    if true {
+        1;
+    } else {
+        2;
+    };
+```
+
+---
+
+プリミティブ
+------------
+* 整数と浮動小数点数
+  - `int`, `uint`, `i64`, `u8`, `f32`, `f64`, &hellip;
+  - 暗黙のキャストはない
+* 真偽値 `bool`
+* `char`は4バイトのUnicodeのコードポイント
+  - `'x'` 文字リテラル
+  - `"foobar"` 文字列リテラル
+  - `r##"raw\s+string\s+literal"##` raw文字列リテラル
+  - 文字列の型は妙に凝ってるので後で
+
+---
+
+普通の構造体
+------------
+
+```rust
+struct Point { x: f64, y: f64 } // 普通の"構造体"
+let p1 = Point { x: 1.0, y: 1.0 };
+let mut p2 = Point { x: 2.0, y: 2.0 };
+p2.x = -2.0;
+```
+
+配置はC言語の構造体と同じ
+
+---
+
+class: center
+
+# 高級っぽい言語としてのRust
+
+* ### クロージャ
+* ### 代数的データ構造
+* ### パターンマッチ
+
+Higher-kind typesがないのでモナドは作れない...
+
+---
+
+# クロージャ
+ふつうっぽい
+
+```rust
+let x = 5i;
+
+let f = |y: int| -> int { y + x };
+
+let f2 = |y| { y + x };
+
+println!("{}", f(10));
+```
+
+* スコープ変数を捕獲できる
+  * ただしスタックとヒープを区別する言語なので
+    C++のようなキャプチャモード指定とかありそう...
+
+---
+
+# 代数的データ構造
+
+```rust
+enum Dir { Left, Right }; // 簡単なenum
+
+enum Colour {
+    Red = 0xf00,
+    Green = 0x0f0,
+    Blue = 0x00f,
+}; // 値を指定できる
+let x = Green as int; // intへキャストできる
+
+enum Shape {
+    Circle(Point, f64),
+    Rectangle(Point, Point)
+}
+
+#![feature(struct_variant)]
+enum LabeledShape {
+    LCircle { center: Point, radius: f64 },
+    RRectangle { top_left: Point, bottom_right: Point }
+}
+```
+
+* Haskellのdataでできることはだいたいできる
+
+---
+
+# パターンマッチ
+
+代数的データ構造といえばパターンマッチ
+
+```rust
+fn lr_to_int(dir: Dir) -> int {
+    match dir {
+        Left => -1,
+        Right => 1
+    }
+}
+
+fn get_size(s: Shape) -> f64 {
+    match s {
+        Circle(_, radius) =>
+            std::num::powif64(radius, 2) * std::f64::consts::PI,
+        Rectangle(p1, p2) =>
+            std::num::abs(p1.x - p2.x) * std::num::abs(p1.y - p2.y)
+    }
+}
+```
+
+---
+
+# traits
+
+省略
+(higher-kind typeがあればScalazならぬRustzが作れるのに&dots;)
+
+---
+
+class: center
+
+# C/C++と高級言語の界面
+
+* ### 構造体レイアウト/明示的ヒープ
+* ### 4種類のヒープ管理
+
+---
+
+# C/C++でリスト作る問題
+
+```c
+struct List {
+    int value;
+    List next;
+};
+
+assert(sizeof(List) == &infin;);
+```
+
+* だめ
+  * 定義の終わっていない不完全型を含めることはできない(非本質的説明)
+  * C言語の構造体は中身をベタにメモリに展開する[ちょっと嘘]
+  * ポインタにしないとサイズが無限になるのが本質的問題
+
+```c++
+struct List {
+    int value;
+    // List* next; // 生ポインタでもいいけど
+    std::unique_ptr<List> next;
+}
+```
+
+* 自身への参照はポインタで持つ
+
+---
+
+# `Box<T>`型
+
+```rust
+let mut x = box 1i;
+ *x = 5;
+let y = x;
+ *x = 6; // エラー！
+x = box 1i;
+println!("{}", *x);
+```
+
+* C++の`std::unique_ptr<T>`に近い
+  * ヒープに置かれる
+  * 所有者は1人だけ
+  * デストラクタでヒープ開放
+  * 違う点
+    * nullableではない
+    * 強制move
+    * move後の利用はエラー
+
+---
+
+# 線形リストのBoxによる実装
+
+```rust
+enum List {
+    Cons(i64, Box<List>),
+    Nil,
+}
+
+let mut x = Nil;
+x = Cons(3, box x);
+x = Cons(2, box x);
+x = Cons(1, box x);
+```
+
+---
+
+# 参照
+
+* `Box<T>`はふつうに使うとmove
+  * 読み込みだけする関数とかに渡せない
+
+```rust
+fn length(xs: List) -> Int {
+    match xs {
+        Nil => 0,
+        Cons(_, ys) => 1 + length(ys),
+    }
+}
+let x: List = ...;
+let l = length(x);
+let l2 = length(x); // エラー！！Use after move.
+```
+
+C++で言うところの`const T&`を使う必要がある
+
+```rust
+fn length(xs: &List) -> Int {
+    match xs {
+        &Nil => 0,
+        &Cons(_, box ref ys) => 1 + length(ys)
+    }
+}
+let l = length(&x);
+let l2 = length(&x); // ok
+```
+
+---
+
+# メモリ管理その他
+
+* Boxの参照を利用している間は他のタスクにBoxの実体を飛ばせない
+* `std::rc::Rc` 参照カウンタを持つ共有変数
+* `std::gc::Gc` Gabage Collection!
+
+---
+
+# 他にも大事なこと
+
+* Generics
+* traits
+* 文字列
+  * ヒープを確保するStringと`char*`の`str`の違い
+  * &hellip;
+* 並列実行モデル
+  * 軽量タスク間で型付きパイプによる通信
+  * GreenスレッドによるI/O多重化
+* 実際の実行性能
+  * 逐次性能
+  * 並列性能(計算bound)
+  * 並行性能(I/O bound)
+    </textarea>
+    <script src="http://gnab.github.io/remark/downloads/remark-latest.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
